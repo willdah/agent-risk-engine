@@ -37,22 +37,19 @@ assert result.decision == GateResult.NEEDS_APPROVAL
 
 Actions pass through a 3-layer pipeline:
 
-```mermaid
-flowchart LR
-    A["Action arrives"] --> B
-
-    B["**RuleGate** · L1\nFast static rules\nNo LLM · Microseconds"]
-    B -->|denied| Z["DENIED"]
-    B -->|passes| C
-
-    C["**ActionAnalyzer** · L2\nArgument-aware scoring\nPassthrough stub by default"]
-    C -->|scored| D
-
-    D["**ActionGate** · L3\nRisk vs utility tradeoff\nOnly escalates, never relaxes"]
-    D --> E["ALLOWED / NEEDS_APPROVAL / DENIED"]
+```
+Action --> RuleGate (L1) --> ActionAnalyzer (L2) --> ActionGate (L3) --> Decision
+              |                                                           |
+              +-- DENIED (short-circuit) ---------------------------------+
 ```
 
-**L1 (RuleGate)** and the **RiskUtilityGate** implementation of L3 are fully implemented. L2 ships as a passthrough stub — plug in your own `ActionAnalyzer`.
+| Layer | Component          | Role                              | Speed        |
+|-------|--------------------|-----------------------------------|--------------|
+| L1    | **RuleGate**       | Fast static rules — no LLM        | Microseconds |
+| L2    | **ActionAnalyzer** | Argument-aware scoring (Protocol)  | Varies       |
+| L3    | **ActionGate**     | Risk vs utility tradeoff           | Microseconds |
+
+**L1 (RuleGate)** and the **RiskUtilityGate** implementation of L3 are fully implemented. L2 ships as a passthrough stub — plug in your own `ActionAnalyzer`. Layers only escalate, never relax — a DENIED from L1 short-circuits the entire pipeline.
 
 ## Risk Levels
 
