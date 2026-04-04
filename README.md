@@ -2,7 +2,7 @@
 
 A layered protocol and reference implementation for codifying risk in autonomous agent actions.
 
-See [PROTOCOL.md](PROTOCOL.md) for the language-agnostic protocol specification.
+See [PROTOCOL.md](https://github.com/willdah/agent-risk-engine/blob/main/PROTOCOL.md) for the language-agnostic protocol specification.
 
 ## Installation
 
@@ -37,22 +37,19 @@ assert result.decision == GateResult.NEEDS_APPROVAL
 
 Actions pass through a 3-layer pipeline:
 
-```mermaid
-flowchart LR
-    A["Action arrives"] --> B
-
-    B["**RuleGate** · L1\nFast static rules\nNo LLM · Microseconds"]
-    B -->|denied| Z["DENIED"]
-    B -->|passes| C
-
-    C["**ActionAnalyzer** · L2\nArgument-aware scoring\nPassthrough stub by default"]
-    C -->|scored| D
-
-    D["**ActionGate** · L3\nRisk vs utility tradeoff\nOnly escalates, never relaxes"]
-    D --> E["ALLOWED / NEEDS_APPROVAL / DENIED"]
+```
+Action --> RuleGate (L1) --> ActionAnalyzer (L2) --> ActionGate (L3) --> Decision
+              |                                                           |
+              +-- DENIED (short-circuit) ---------------------------------+
 ```
 
-**L1 (RuleGate)** and the **RiskUtilityGate** implementation of L3 are fully implemented. L2 ships as a passthrough stub — plug in your own `ActionAnalyzer`.
+| Layer | Component          | Role                              | Speed        |
+|-------|--------------------|-----------------------------------|--------------|
+| L1    | **RuleGate**       | Fast static rules — no LLM        | Microseconds |
+| L2    | **ActionAnalyzer** | Argument-aware scoring (Protocol)  | Varies       |
+| L3    | **ActionGate**     | Risk vs utility tradeoff           | Microseconds |
+
+**L1 (RuleGate)** and the **RiskUtilityGate** implementation of L3 are fully implemented. L2 ships as a passthrough stub — plug in your own `ActionAnalyzer`. Layers only escalate, never relax — a DENIED from L1 short-circuits the entire pipeline.
 
 ## Risk Levels
 
@@ -63,6 +60,15 @@ flowchart LR
 | 3     | Moderate | Reversible mutations             |
 | 4     | High     | Hard-to-reverse mutations        |
 | 5     | Critical | Destructive or irreversible      |
+
+Use the `RiskLevel` enum for readable risk assignments:
+
+```python
+from agent_risk_engine import RiskLevel
+
+Action(kind="tool_call", name="read_file", risk=RiskLevel.INFO)      # 1
+Action(kind="tool_call", name="delete_db", risk=RiskLevel.CRITICAL)  # 5
+```
 
 ## RuleGate
 
@@ -78,10 +84,20 @@ gate = RuleGate(
     },
     denied={"delete_database"},
     allowed={"read_logs"},
+    approve={"send_email"},
 )
 ```
 
 Evaluation order: `denied` → `allowed` → `approve` → threshold comparison.
+
+### Strict Mode
+
+By default, actions above the threshold require approval (`NEEDS_APPROVAL`). With `strict=True`, they are denied outright:
+
+```python
+gate = RuleGate(threshold="cautious", strict=True)
+# risk=3 action -> DENIED (instead of NEEDS_APPROVAL)
+```
 
 ### Threshold Aliases
 
@@ -104,7 +120,7 @@ analyzer = PatternAnalyzer(extra_patterns=[
 ])
 ```
 
-Pass it to `RiskEvaluator(rule_gate=gate, action_analyzer=analyzer)`.
+Pass it to `RiskEvaluator(rule_gate=gate, analyzer=analyzer)`.
 
 ## RiskUtilityGate
 
@@ -141,7 +157,7 @@ class LLMAnalyzer:
 
 evaluator = RiskEvaluator(
     rule_gate=RuleGate(threshold="cautious"),
-    action_analyzer=LLMAnalyzer(),
+    analyzer=LLMAnalyzer(),
 )
 ```
 
@@ -152,14 +168,36 @@ Standalone loop and repetition detection. Not a pipeline layer — use it to bui
 ```python
 from agent_risk_engine import CallTracker
 
-tracker = CallTracker()
+tracker = CallTracker(window=20, loop_threshold=3, repetition_ratio=0.7)
 tracker.record(action.name)
 context = tracker.check()
+# context: {"healthy": bool, "warnings": list[str]}
+
 # Merge into action metadata before evaluating
 action = Action(kind=action.kind, name=action.name, risk=action.risk, metadata=context)
 ```
 
-`check()` returns `{"healthy": bool, "warnings": list[str]}`.
+- `window` — number of recent calls to retain (default 20)
+- `loop_threshold` — consecutive identical calls to flag a loop (default 3)
+- `repetition_ratio` — fraction of calls to one action that triggers a warning (default 0.7)
+
+## ActionRegistry
+
+Optional lookup table for action risk levels. Use it as the source of truth for your action catalog:
+
+```python
+from agent_risk_engine import ActionRegistry
+
+registry = ActionRegistry(default_risk=5)
+registry.register("read_file", kind="tool_call", risk=1, description="Read a file")
+registry.register("delete_file", kind="file_delete", risk=4)
+
+# Look up risk for an action
+risk = registry.get_risk("read_file")    # 1
+risk = registry.get_risk("unknown_tool") # 5 (default_risk)
+```
+
+The registry is not wired into the pipeline automatically — use it to build `Action` objects with correct risk levels before evaluating.
 
 ## Framework Integration
 

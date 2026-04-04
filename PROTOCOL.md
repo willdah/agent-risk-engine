@@ -49,7 +49,7 @@ The input to risk evaluation. Every action is described by:
 | `kind`       | string            | yes      | Action category (see recommended kinds below) |
 | `name`       | string            | yes      | Specific action identifier |
 | `parameters` | object            | no       | Action-specific arguments |
-| `risk`       | integer (1-5)     | yes      | Developer-assigned static risk level |
+| `risk`       | integer (1-5)     | yes      | Developer-assigned static risk level (SHOULD default to 5 if omitted) |
 | `metadata`   | object            | no       | Contextual information (see recommended keys below) |
 
 ### Utility Score
