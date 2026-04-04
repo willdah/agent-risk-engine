@@ -4,13 +4,43 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agent-risk-engine"
-version = "0.1.0"
-description = "Layered risk evaluation for AI agent tool execution."
+version = "0.2.0"
+description = "A layered protocol and reference implementation for codifying risk in autonomous agent actions."
 authors = [{name = "Will Ahern"}]
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.12"
 dependencies = []
+keywords = ["agent", "risk", "evaluation", "safety", "autonomous", "guardrails"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.urls]
+Homepage = "https://github.com/willdah/agent-risk-engine"
+Repository = "https://github.com/willdah/agent-risk-engine.git"
+Issues = "https://github.com/willdah/agent-risk-engine/issues"
+
+[project.optional-dependencies]
+test = ["pytest>=8", "pytest-asyncio>=0.25"]
+dev = ["ruff>=0.8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agent_risk_engine"]
