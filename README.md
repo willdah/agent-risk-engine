@@ -120,7 +120,7 @@ analyzer = PatternAnalyzer(extra_patterns=[
 ])
 ```
 
-Pass it to `RiskEvaluator(rule_gate=gate, action_analyzer=analyzer)`.
+Pass it to `RiskEvaluator(rule_gate=gate, analyzer=analyzer)`.
 
 ## RiskUtilityGate
 
@@ -157,7 +157,7 @@ class LLMAnalyzer:
 
 evaluator = RiskEvaluator(
     rule_gate=RuleGate(threshold="cautious"),
-    action_analyzer=LLMAnalyzer(),
+    analyzer=LLMAnalyzer(),
 )
 ```
 
