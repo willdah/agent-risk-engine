@@ -2,7 +2,7 @@
 
 A layered protocol and reference implementation for codifying risk in autonomous agent actions.
 
-See [PROTOCOL.md](PROTOCOL.md) for the language-agnostic protocol specification.
+See [PROTOCOL.md](https://github.com/willdah/agent-risk-engine/blob/main/PROTOCOL.md) for the language-agnostic protocol specification.
 
 ## Installation
 
