@@ -61,6 +61,15 @@ Action --> RuleGate (L1) --> ActionAnalyzer (L2) --> ActionGate (L3) --> Decisio
 | 4     | High     | Hard-to-reverse mutations        |
 | 5     | Critical | Destructive or irreversible      |
 
+Use the `RiskLevel` enum for readable risk assignments:
+
+```python
+from agent_risk_engine import RiskLevel
+
+Action(kind="tool_call", name="read_file", risk=RiskLevel.INFO)      # 1
+Action(kind="tool_call", name="delete_db", risk=RiskLevel.CRITICAL)  # 5
+```
+
 ## RuleGate
 
 Fast, deterministic, no LLM required. Supports per-kind threshold routing:
