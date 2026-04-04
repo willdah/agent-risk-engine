@@ -159,14 +159,18 @@ Standalone loop and repetition detection. Not a pipeline layer — use it to bui
 ```python
 from agent_risk_engine import CallTracker
 
-tracker = CallTracker()
+tracker = CallTracker(window=20, loop_threshold=3, repetition_ratio=0.7)
 tracker.record(action.name)
 context = tracker.check()
+# context: {"healthy": bool, "warnings": list[str]}
+
 # Merge into action metadata before evaluating
 action = Action(kind=action.kind, name=action.name, risk=action.risk, metadata=context)
 ```
 
-`check()` returns `{"healthy": bool, "warnings": list[str]}`.
+- `window` — number of recent calls to retain (default 20)
+- `loop_threshold` — consecutive identical calls to flag a loop (default 3)
+- `repetition_ratio` — fraction of calls to one action that triggers a warning (default 0.7)
 
 ## ActionRegistry
 
