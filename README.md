@@ -75,10 +75,20 @@ gate = RuleGate(
     },
     denied={"delete_database"},
     allowed={"read_logs"},
+    approve={"send_email"},
 )
 ```
 
 Evaluation order: `denied` → `allowed` → `approve` → threshold comparison.
+
+### Strict Mode
+
+By default, actions above the threshold require approval (`NEEDS_APPROVAL`). With `strict=True`, they are denied outright:
+
+```python
+gate = RuleGate(threshold="cautious", strict=True)
+# risk=3 action -> DENIED (instead of NEEDS_APPROVAL)
+```
 
 ### Threshold Aliases
 
