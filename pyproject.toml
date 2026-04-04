@@ -7,7 +7,7 @@ name = "agent-risk-engine"
 version = "0.2.0"
 description = "A layered protocol and reference implementation for codifying risk in autonomous agent actions."
 authors = [{name = "Will Ahern"}]
-readme = "README.md"
+readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
 requires-python = ">=3.12"
 dependencies = []
