@@ -168,6 +168,24 @@ action = Action(kind=action.kind, name=action.name, risk=action.risk, metadata=c
 
 `check()` returns `{"healthy": bool, "warnings": list[str]}`.
 
+## ActionRegistry
+
+Optional lookup table for action risk levels. Use it as the source of truth for your action catalog:
+
+```python
+from agent_risk_engine import ActionRegistry
+
+registry = ActionRegistry(default_risk=5)
+registry.register("read_file", kind="tool_call", risk=1, description="Read a file")
+registry.register("delete_file", kind="file_delete", risk=4)
+
+# Look up risk for an action
+risk = registry.get_risk("read_file")    # 1
+risk = registry.get_risk("unknown_tool") # 5 (default_risk)
+```
+
+The registry is not wired into the pipeline automatically — use it to build `Action` objects with correct risk levels before evaluating.
+
 ## Framework Integration
 
 Write a thin adapter that maps your framework's action primitives to `Action`:
