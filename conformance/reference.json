@@ -215,7 +215,7 @@
     },
     {
       "id": "reference-pipeline-004",
-      "description": "Above-threshold action with no utility gets needs_approval from rule gate",
+      "description": "Above-tolerance action with no utility gets needs_approval from rule gate",
       "category": "full-pipeline",
       "config": { "rule_gate": { "risk_tolerance": 2 }, "analyzer": { "type": "pattern", "include_defaults": true }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "write", "parameters": { "content": "safe data" }, "risk": 3 },

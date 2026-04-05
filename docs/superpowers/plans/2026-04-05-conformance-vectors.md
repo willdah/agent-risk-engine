@@ -1,5 +1,7 @@
 # Conformance Test Vectors Implementation Plan
 
+> **Note:** This plan predates the risk tolerance elevation — shipped config uses `risk_tolerance`/`kind_tolerances` instead of `threshold`/`kind_thresholds`, and category names use `tolerance-boundary`/`kind-tolerances` instead of `threshold-boundary`/`kind-thresholds`.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Ship a `conformance/` directory with protocol-tier and reference-tier JSON test vectors that define correct behavior for the Agent Risk Protocol, plus two normative utility constraints added to the protocol spec.

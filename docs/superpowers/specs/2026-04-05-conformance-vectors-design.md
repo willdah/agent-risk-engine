@@ -1,5 +1,7 @@
 # Conformance Test Vectors — Design Spec
 
+> **Note:** This spec predates the risk tolerance elevation — shipped config uses `risk_tolerance`/`kind_tolerances` instead of `threshold`/`kind_thresholds`, and category names use `tolerance-boundary`/`kind-tolerances` instead of `threshold-boundary`/`kind-thresholds`.
+
 ## Goal
 
 Create a suite of JSON test vectors that define correct behavior for the Agent Risk Protocol and its reference implementation. The vectors serve two audiences:
