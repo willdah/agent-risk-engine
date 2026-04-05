@@ -218,7 +218,7 @@ class TestEndToEndRiskUtilityGate:
             Action(kind="tool_call", name="write_file", risk=3),
             utility=UtilityScore(level=1, reasoning="Speculative"),
         )
-        assert result.decision == GateResult.DENIED
+        assert result.decision == GateResult.NEEDS_APPROVAL
 
 
 class TestNoSystemState:

@@ -1,0 +1,226 @@
+{
+  "version": "1.0.0",
+  "description": "Conformance vectors for the Python reference implementation — PatternAnalyzer, RiskUtilityGate, and full RiskEvaluator pipeline.",
+  "vectors": [
+    {
+      "id": "reference-pattern-001",
+      "description": "rm -rf in parameters escalates to risk 5",
+      "category": "pattern-escalation",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "exec", "parameters": { "command": "rm -rf /" }, "risk": 3 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 5 }
+    },
+    {
+      "id": "reference-pattern-002",
+      "description": "/etc/passwd path escalates to risk 4",
+      "category": "pattern-escalation",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "read", "parameters": { "path": "/etc/passwd" }, "risk": 2 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 4 }
+    },
+    {
+      "id": "reference-pattern-003",
+      "description": "DROP TABLE in SQL escalates to risk 5",
+      "category": "pattern-escalation",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "query", "parameters": { "sql": "DROP TABLE users" }, "risk": 2 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 5 }
+    },
+    {
+      "id": "reference-pattern-004",
+      "description": "sudo in command escalates to risk 4",
+      "category": "pattern-escalation",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "exec", "parameters": { "command": "sudo apt update" }, "risk": 2 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 4 }
+    },
+    {
+      "id": "reference-pattern-005",
+      "description": "Benign parameters produce no escalation",
+      "category": "pattern-escalation",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "greet", "parameters": { "message": "hello world" }, "risk": 2 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 2 }
+    },
+
+    {
+      "id": "reference-pattern-inv-001",
+      "description": "High static risk not reduced by low pattern match",
+      "category": "pattern-invariant",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "exec", "parameters": { "command": "ALTER TABLE x ADD col INT" }, "risk": 5 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 5 }
+    },
+    {
+      "id": "reference-pattern-inv-002",
+      "description": "No pattern match returns static risk unchanged",
+      "category": "pattern-invariant",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": { "msg": "safe content" }, "risk": 3 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 3 }
+    },
+    {
+      "id": "reference-pattern-inv-003",
+      "description": "Empty parameters returns static risk unchanged",
+      "category": "pattern-invariant",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 2 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 2 }
+    },
+
+    {
+      "id": "reference-pattern-kind-001",
+      "description": "Kind-scoped pattern matches correct kind",
+      "category": "pattern-kind-scoping",
+      "config": {
+        "rule_gate": { "risk_tolerance": 5 },
+        "analyzer": {
+          "type": "pattern",
+          "include_defaults": false,
+          "extra_patterns": [
+            { "pattern": "\\bDROP\\b", "risk_level": 5, "description": "SQL drop", "kinds": ["database_query"] }
+          ]
+        }
+      },
+      "action": { "kind": "database_query", "name": "q", "parameters": { "sql": "DROP TABLE x" }, "risk": 1 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 5 }
+    },
+    {
+      "id": "reference-pattern-kind-002",
+      "description": "Kind-scoped pattern skipped for wrong kind",
+      "category": "pattern-kind-scoping",
+      "config": {
+        "rule_gate": { "risk_tolerance": 5 },
+        "analyzer": {
+          "type": "pattern",
+          "include_defaults": false,
+          "extra_patterns": [
+            { "pattern": "\\bDROP\\b", "risk_level": 5, "description": "SQL drop", "kinds": ["database_query"] }
+          ]
+        }
+      },
+      "action": { "kind": "tool_call", "name": "x", "parameters": { "cmd": "DROP TABLE x" }, "risk": 1 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 1 }
+    },
+    {
+      "id": "reference-pattern-kind-003",
+      "description": "Null kinds matches all action kinds",
+      "category": "pattern-kind-scoping",
+      "config": {
+        "rule_gate": { "risk_tolerance": 5 },
+        "analyzer": {
+          "type": "pattern",
+          "include_defaults": false,
+          "extra_patterns": [
+            { "pattern": "\\bDANGER\\b", "risk_level": 5, "description": "Danger keyword", "kinds": null }
+          ]
+        }
+      },
+      "action": { "kind": "anything", "name": "x", "parameters": { "x": "DANGER" }, "risk": 1 },
+      "utility": null,
+      "expected": { "decision": "allowed", "risk_score_level": 5 }
+    },
+
+    {
+      "id": "reference-utility-001",
+      "description": "No utility provided returns rule result unchanged",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
+      "utility": null,
+      "expected": { "decision": "allowed" }
+    },
+    {
+      "id": "reference-utility-002",
+      "description": "Denied stays denied even with high utility",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"] }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
+      "utility": { "level": 5, "reasoning": "Maximum utility" },
+      "expected": { "decision": "denied" }
+    },
+    {
+      "id": "reference-utility-003",
+      "description": "Equal risk and utility produces no escalation",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
+      "utility": { "level": 3, "reasoning": "Matched" },
+      "expected": { "decision": "allowed" }
+    },
+    {
+      "id": "reference-utility-004",
+      "description": "Utility exceeding risk produces no escalation",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 2 },
+      "utility": { "level": 4, "reasoning": "High utility" },
+      "expected": { "decision": "allowed" }
+    },
+    {
+      "id": "reference-utility-005",
+      "description": "Gap of 1 escalates allowed to needs_approval",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
+      "utility": { "level": 2, "reasoning": "Low utility" },
+      "expected": { "decision": "needs_approval" }
+    },
+    {
+      "id": "reference-utility-006",
+      "description": "Gap of 2+ clamped at 1 step: allowed escalates to needs_approval only",
+      "category": "risk-utility-formula",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
+      "utility": { "level": 1, "reasoning": "Minimal utility" },
+      "expected": { "decision": "needs_approval" }
+    },
+
+    {
+      "id": "reference-pipeline-001",
+      "description": "Denied action short-circuits before analyzer runs",
+      "category": "full-pipeline",
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["dangerous"] }, "analyzer": { "type": "pattern", "include_defaults": true }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "dangerous", "parameters": { "command": "safe content" }, "risk": 1 },
+      "utility": null,
+      "expected": { "decision": "denied" }
+    },
+    {
+      "id": "reference-pipeline-002",
+      "description": "Pattern escalates risk but utility justifies it — stays at rule gate output",
+      "category": "full-pipeline",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "exec", "parameters": { "command": "sudo apt update" }, "risk": 2 },
+      "utility": { "level": 4, "reasoning": "User requested" },
+      "expected": { "decision": "allowed", "risk_score_level": 4 }
+    },
+    {
+      "id": "reference-pipeline-003",
+      "description": "Allowed action passes through all three layers untouched",
+      "category": "full-pipeline",
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "analyzer": { "type": "pattern", "include_defaults": true }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "greet", "parameters": { "message": "hello" }, "risk": 1 },
+      "utility": { "level": 3, "reasoning": "Normal" },
+      "expected": { "decision": "allowed", "risk_score_level": 1 }
+    },
+    {
+      "id": "reference-pipeline-004",
+      "description": "Above-tolerance action with no utility gets needs_approval from rule gate",
+      "category": "full-pipeline",
+      "config": { "rule_gate": { "risk_tolerance": 2 }, "analyzer": { "type": "pattern", "include_defaults": true }, "action_gate": { "type": "risk_utility" } },
+      "action": { "kind": "tool_call", "name": "write", "parameters": { "content": "safe data" }, "risk": 3 },
+      "utility": null,
+      "expected": { "decision": "needs_approval", "risk_score_level": 3 }
+    }
+  ]
+}

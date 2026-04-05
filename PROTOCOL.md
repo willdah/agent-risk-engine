@@ -52,6 +52,12 @@ The input to risk evaluation. Every action is described by:
 | `risk`       | integer (1-5)     | yes      | Developer-assigned static risk level (SHOULD default to 5 if omitted) |
 | `metadata`   | object            | no       | Contextual information (see recommended keys below) |
 
+### Risk Tolerance
+
+Conforming implementations MUST support a configurable **risk tolerance** — the maximum risk level (1-5) at which actions are auto-allowed without intervention. Actions above the risk tolerance require approval or are denied, depending on the implementation's strictness mode.
+
+Implementations MAY support per-kind risk tolerances, allowing different action categories to have different auto-allow ceilings.
+
 ### Utility Score
 
 An optional caller-provided signal indicating how valuable an action is to the agent's goals:
@@ -75,9 +81,13 @@ These rules are normative — all conforming implementations MUST respect them:
 
 3. **Stateless evaluation.** The engine evaluates a single action in isolation. It does not track call history, session state, or temporal patterns internally. Temporal context is the framework's responsibility and flows in via `metadata`.
 
-4. **Developer rules take precedence.** Explicitly codified rules (deny lists, allow lists, thresholds) cannot be overridden by agent reasoning or utility scores.
+4. **Developer rules take precedence.** Explicitly codified rules (deny lists, allow lists, risk tolerances) cannot be overridden by agent reasoning or utility scores.
 
 5. **Secure by default.** Unknown actions (those without explicit risk assignments) SHOULD default to the highest risk level.
+
+6. **Utility offset limit.** Utility MUST NOT reduce the effective decision by more than one escalation level relative to what risk alone would produce. An action that risk evaluation would deny may be relaxed to needs_approval by sufficient utility, but never directly to allowed.
+
+7. **Critical risk protection.** Risk level 5 actions MUST NOT be resolved as `allowed` by utility alone. Only explicit developer rules (allow lists) may auto-allow critical-risk actions.
 
 ## Recommended Action Kinds
 
@@ -116,7 +126,7 @@ An implementation conforms to this protocol if:
 1. It uses the 1-5 risk level scale with the defined semantics
 2. It produces one of the three gate results (allowed, needs_approval, denied)
 3. It accepts the action envelope shape (or a language-idiomatic equivalent)
-4. It respects all evaluation semantics (escalation-only, denied-is-final, stateless, developer-rules-first, secure-by-default)
+4. It respects all evaluation semantics (escalation-only, denied-is-final, stateless, developer-rules-first, secure-by-default, utility-offset-limit, critical-risk-protection)
 
 The number of evaluation layers, the analysis method (regex, LLM, heuristic), how utility is computed, and how temporal context is tracked are implementation choices, not protocol requirements.
 
