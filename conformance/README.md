@@ -49,7 +49,7 @@ Each vector:
 
 ### Config
 
-Protocol-tier vectors use `rule_gate` only:
+Protocol-tier vectors primarily use `rule_gate`. Vectors testing Layer 3 escalation and utility constraints additionally include `action_gate`:
 
 ```json
 {
