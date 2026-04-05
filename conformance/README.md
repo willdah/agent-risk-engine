@@ -54,17 +54,17 @@ Protocol-tier vectors primarily use `rule_gate`. Vectors testing Layer 3 escalat
 ```json
 {
   "rule_gate": {
-    "threshold": 3,
+    "risk_tolerance": 3,
     "strict": false,
     "allowed": [],
     "approve": [],
     "denied": [],
-    "kind_thresholds": {}
+    "kind_tolerances": {}
   }
 }
 ```
 
-All fields except `threshold` are optional (default to empty/false).
+`risk_tolerance` (integer 1-5): actions with risk at or below this value are auto-allowed. Actions above require approval (or are denied in strict mode). All other fields are optional (default to empty/false).
 
 Reference-tier vectors may add `analyzer` and `action_gate`:
 
@@ -85,9 +85,9 @@ Reference-tier may add: `{"decision": "...", "risk_score_level": 5}`
 
 **Protocol-tier:**
 - `denied-is-final` — denied-set always produces denied
-- `evaluation-order` — denied > allowed > approve > threshold
-- `threshold-boundary` — at/below/above threshold behavior
-- `kind-thresholds` — per-kind threshold overrides
+- `evaluation-order` — denied > allowed > approve > risk tolerance
+- `tolerance-boundary` — at/below/above risk tolerance behavior
+- `kind-tolerances` — per-kind risk tolerance overrides
 - `escalation-only` — later stages can only escalate
 - `secure-by-default` — unknown actions default to highest risk
 - `utility-constraints` — utility offset and critical risk limits

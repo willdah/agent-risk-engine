@@ -6,7 +6,7 @@
       "id": "protocol-denied-001",
       "description": "Denied-set action is denied regardless of low risk",
       "category": "denied-is-final",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["drop_database"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["drop_database"] } },
       "action": { "kind": "tool_call", "name": "drop_database", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -15,7 +15,7 @@
       "id": "protocol-denied-002",
       "description": "Denied-set overrides allowed-set when name is in both",
       "category": "denied-is-final",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["x"], "allowed": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"], "allowed": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -24,7 +24,7 @@
       "id": "protocol-denied-003",
       "description": "Denied-set overrides approve-set when name is in both",
       "category": "denied-is-final",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["x"], "approve": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"], "approve": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -33,7 +33,7 @@
       "id": "protocol-denied-004",
       "description": "Denied-set overrides when name is in all three sets",
       "category": "denied-is-final",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["x"], "allowed": ["x"], "approve": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"], "allowed": ["x"], "approve": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -42,7 +42,7 @@
       "id": "protocol-denied-005",
       "description": "Denied-set action denied even at full-trust threshold",
       "category": "denied-is-final",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -52,7 +52,7 @@
       "id": "protocol-order-001",
       "description": "Allowed-set bypasses threshold even for risk 5 with threshold 1",
       "category": "evaluation-order",
-      "config": { "rule_gate": { "threshold": 1, "allowed": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 1, "allowed": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -61,7 +61,7 @@
       "id": "protocol-order-002",
       "description": "Allowed-set overrides approve-set when name is in both",
       "category": "evaluation-order",
-      "config": { "rule_gate": { "threshold": 1, "allowed": ["x"], "approve": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 1, "allowed": ["x"], "approve": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -70,7 +70,7 @@
       "id": "protocol-order-003",
       "description": "Approve-set forces needs_approval even when threshold would allow",
       "category": "evaluation-order",
-      "config": { "rule_gate": { "threshold": 5, "approve": ["x"] } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "approve": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "needs_approval" }
@@ -79,7 +79,7 @@
       "id": "protocol-order-004",
       "description": "Action not in any set falls through to threshold comparison",
       "category": "evaluation-order",
-      "config": { "rule_gate": { "threshold": 3 } },
+      "config": { "rule_gate": { "risk_tolerance": 3 } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 4 },
       "utility": null,
       "expected": { "decision": "needs_approval" }
@@ -88,8 +88,8 @@
     {
       "id": "protocol-threshold-001",
       "description": "Risk exactly at threshold is allowed",
-      "category": "threshold-boundary",
-      "config": { "rule_gate": { "threshold": 3 } },
+      "category": "tolerance-boundary",
+      "config": { "rule_gate": { "risk_tolerance": 3 } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -97,8 +97,8 @@
     {
       "id": "protocol-threshold-002",
       "description": "Risk below threshold is allowed",
-      "category": "threshold-boundary",
-      "config": { "rule_gate": { "threshold": 3 } },
+      "category": "tolerance-boundary",
+      "config": { "rule_gate": { "risk_tolerance": 3 } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -106,8 +106,8 @@
     {
       "id": "protocol-threshold-003",
       "description": "Risk above threshold in non-strict mode is needs_approval",
-      "category": "threshold-boundary",
-      "config": { "rule_gate": { "threshold": 3, "strict": false } },
+      "category": "tolerance-boundary",
+      "config": { "rule_gate": { "risk_tolerance": 3, "strict": false } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 4 },
       "utility": null,
       "expected": { "decision": "needs_approval" }
@@ -115,8 +115,8 @@
     {
       "id": "protocol-threshold-004",
       "description": "Risk above threshold in strict mode is denied",
-      "category": "threshold-boundary",
-      "config": { "rule_gate": { "threshold": 3, "strict": true } },
+      "category": "tolerance-boundary",
+      "config": { "rule_gate": { "risk_tolerance": 3, "strict": true } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 4 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -124,8 +124,8 @@
     {
       "id": "protocol-threshold-005",
       "description": "Threshold 5 allows everything",
-      "category": "threshold-boundary",
-      "config": { "rule_gate": { "threshold": 5 } },
+      "category": "tolerance-boundary",
+      "config": { "rule_gate": { "risk_tolerance": 5 } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -134,8 +134,8 @@
     {
       "id": "protocol-kind-001",
       "description": "Kind threshold overrides default threshold",
-      "category": "kind-thresholds",
-      "config": { "rule_gate": { "threshold": 1, "kind_thresholds": { "tool_call": 3 } } },
+      "category": "kind-tolerances",
+      "config": { "rule_gate": { "risk_tolerance": 1, "kind_tolerances": { "tool_call": 3 } } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -143,8 +143,8 @@
     {
       "id": "protocol-kind-002",
       "description": "Unknown kind falls back to default threshold",
-      "category": "kind-thresholds",
-      "config": { "rule_gate": { "threshold": 1, "kind_thresholds": { "tool_call": 3 } } },
+      "category": "kind-tolerances",
+      "config": { "rule_gate": { "risk_tolerance": 1, "kind_tolerances": { "tool_call": 3 } } },
       "action": { "kind": "file_write", "name": "x", "parameters": {}, "risk": 2 },
       "utility": null,
       "expected": { "decision": "needs_approval" }
@@ -152,8 +152,8 @@
     {
       "id": "protocol-kind-003",
       "description": "Kind threshold respects strict mode",
-      "category": "kind-thresholds",
-      "config": { "rule_gate": { "threshold": 1, "strict": true, "kind_thresholds": { "tool_call": 2 } } },
+      "category": "kind-tolerances",
+      "config": { "rule_gate": { "risk_tolerance": 1, "strict": true, "kind_tolerances": { "tool_call": 2 } } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -161,8 +161,8 @@
     {
       "id": "protocol-kind-004",
       "description": "Name override takes precedence over kind threshold",
-      "category": "kind-thresholds",
-      "config": { "rule_gate": { "threshold": 1, "kind_thresholds": { "tool_call": 1 }, "allowed": ["x"] } },
+      "category": "kind-tolerances",
+      "config": { "rule_gate": { "risk_tolerance": 1, "kind_tolerances": { "tool_call": 1 }, "allowed": ["x"] } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "allowed" }
@@ -172,7 +172,7 @@
       "id": "protocol-escalation-001",
       "description": "Layer 3 can escalate allowed to needs_approval",
       "category": "escalation-only",
-      "config": { "rule_gate": { "threshold": 5 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 2, "reasoning": "Low utility" },
       "expected": { "decision": "needs_approval" }
@@ -181,7 +181,7 @@
       "id": "protocol-escalation-002",
       "description": "Layer 3 can escalate needs_approval to denied",
       "category": "escalation-only",
-      "config": { "rule_gate": { "threshold": 2 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 2 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 2, "reasoning": "Low utility" },
       "expected": { "decision": "denied" }
@@ -190,7 +190,7 @@
       "id": "protocol-escalation-003",
       "description": "Layer 3 cannot relax needs_approval to allowed even with high utility",
       "category": "escalation-only",
-      "config": { "rule_gate": { "threshold": 2 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 2 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 5, "reasoning": "Very high utility" },
       "expected": { "decision": "needs_approval" }
@@ -199,7 +199,7 @@
       "id": "protocol-escalation-004",
       "description": "Layer 3 cannot relax denied to needs_approval even with high utility",
       "category": "escalation-only",
-      "config": { "rule_gate": { "threshold": 2, "strict": true }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 2, "strict": true }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 5, "reasoning": "Very high utility" },
       "expected": { "decision": "denied" }
@@ -209,7 +209,7 @@
       "id": "protocol-default-001",
       "description": "Unknown action at default threshold needs approval (risk defaults to highest)",
       "category": "secure-by-default",
-      "config": { "rule_gate": { "threshold": 2 } },
+      "config": { "rule_gate": { "risk_tolerance": 2 } },
       "action": { "kind": "tool_call", "name": "unknown_action", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "needs_approval" }
@@ -218,7 +218,7 @@
       "id": "protocol-default-002",
       "description": "Unknown action at default threshold in strict mode is denied",
       "category": "secure-by-default",
-      "config": { "rule_gate": { "threshold": 2, "strict": true } },
+      "config": { "rule_gate": { "risk_tolerance": 2, "strict": true } },
       "action": { "kind": "tool_call", "name": "unknown_action", "parameters": {}, "risk": 5 },
       "utility": null,
       "expected": { "decision": "denied" }
@@ -228,7 +228,7 @@
       "id": "protocol-utility-001",
       "description": "Utility cannot relax a denied result",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 5, "denied": ["x"] }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 5, "denied": ["x"] }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 1 },
       "utility": { "level": 5, "reasoning": "Maximum utility" },
       "expected": { "decision": "denied" }
@@ -237,7 +237,7 @@
       "id": "protocol-utility-002",
       "description": "Utility cannot relax below rule gate output",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 2 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 2 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 5, "reasoning": "Maximum utility" },
       "expected": { "decision": "needs_approval" }
@@ -246,7 +246,7 @@
       "id": "protocol-utility-003",
       "description": "Risk 5 action above threshold cannot be made allowed by utility alone",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 4 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 4 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 5 },
       "utility": { "level": 5, "reasoning": "Maximum utility" },
       "expected": { "decision": "needs_approval" }
@@ -255,7 +255,7 @@
       "id": "protocol-utility-004",
       "description": "Risk 4 with utility 5 stays at rule gate output (no relaxation by utility)",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 3 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 3 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 4 },
       "utility": { "level": 5, "reasoning": "Maximum utility" },
       "expected": { "decision": "needs_approval" }
@@ -264,7 +264,7 @@
       "id": "protocol-utility-005",
       "description": "Equal risk and utility produces no escalation from utility",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 5 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 3 },
       "utility": { "level": 3, "reasoning": "Matched utility" },
       "expected": { "decision": "allowed" }
@@ -273,7 +273,7 @@
       "id": "protocol-utility-006",
       "description": "Risk exceeding utility causes escalation",
       "category": "utility-constraints",
-      "config": { "rule_gate": { "threshold": 5 }, "action_gate": { "type": "risk_utility" } },
+      "config": { "rule_gate": { "risk_tolerance": 5 }, "action_gate": { "type": "risk_utility" } },
       "action": { "kind": "tool_call", "name": "x", "parameters": {}, "risk": 4 },
       "utility": { "level": 2, "reasoning": "Low utility" },
       "expected": { "decision": "needs_approval" }

@@ -52,6 +52,12 @@ The input to risk evaluation. Every action is described by:
 | `risk`       | integer (1-5)     | yes      | Developer-assigned static risk level (SHOULD default to 5 if omitted) |
 | `metadata`   | object            | no       | Contextual information (see recommended keys below) |
 
+### Risk Tolerance
+
+Conforming implementations MUST support a configurable **risk tolerance** — the maximum risk level (1-5) at which actions are auto-allowed without intervention. Actions above the risk tolerance require approval or are denied, depending on the implementation's strictness mode.
+
+Implementations MAY support per-kind risk tolerances, allowing different action categories to have different auto-allow ceilings.
+
 ### Utility Score
 
 An optional caller-provided signal indicating how valuable an action is to the agent's goals:
@@ -75,7 +81,7 @@ These rules are normative — all conforming implementations MUST respect them:
 
 3. **Stateless evaluation.** The engine evaluates a single action in isolation. It does not track call history, session state, or temporal patterns internally. Temporal context is the framework's responsibility and flows in via `metadata`.
 
-4. **Developer rules take precedence.** Explicitly codified rules (deny lists, allow lists, thresholds) cannot be overridden by agent reasoning or utility scores.
+4. **Developer rules take precedence.** Explicitly codified rules (deny lists, allow lists, risk tolerances) cannot be overridden by agent reasoning or utility scores.
 
 5. **Secure by default.** Unknown actions (those without explicit risk assignments) SHOULD default to the highest risk level.
 
