@@ -79,6 +79,10 @@ These rules are normative — all conforming implementations MUST respect them:
 
 5. **Secure by default.** Unknown actions (those without explicit risk assignments) SHOULD default to the highest risk level.
 
+6. **Utility offset limit.** Utility MUST NOT reduce the effective decision by more than one escalation level relative to what risk alone would produce. An action that risk evaluation would deny may be relaxed to needs_approval by sufficient utility, but never directly to allowed.
+
+7. **Critical risk protection.** Risk level 5 actions MUST NOT be resolved as `allowed` by utility alone. Only explicit developer rules (allow lists) may auto-allow critical-risk actions.
+
 ## Recommended Action Kinds
 
 These are advisory conventions, not a closed set:
@@ -116,7 +120,7 @@ An implementation conforms to this protocol if:
 1. It uses the 1-5 risk level scale with the defined semantics
 2. It produces one of the three gate results (allowed, needs_approval, denied)
 3. It accepts the action envelope shape (or a language-idiomatic equivalent)
-4. It respects all evaluation semantics (escalation-only, denied-is-final, stateless, developer-rules-first, secure-by-default)
+4. It respects all evaluation semantics (escalation-only, denied-is-final, stateless, developer-rules-first, secure-by-default, utility-offset-limit, critical-risk-protection)
 
 The number of evaluation layers, the analysis method (regex, LLM, heuristic), how utility is computed, and how temporal context is tracked are implementation choices, not protocol requirements.
 
