@@ -63,7 +63,7 @@ class RiskUtilityGate:
         if gap <= 0:
             return rule_result
 
-        steps = min(gap, 2)
+        steps = min(gap, 1)  # Protocol constraint: utility offset ≤ 1 escalation level
 
         idx = _ESCALATION_ORDER.index(rule_result)
         escalated_idx = min(idx + steps, len(_ESCALATION_ORDER) - 1)

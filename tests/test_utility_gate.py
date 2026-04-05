@@ -78,30 +78,33 @@ class TestGapOne:
         assert result == GateResult.DENIED
 
 
-class TestGapTwo:
-    def test_allowed_to_denied(self, gate):
+class TestLargeGap:
+    def test_gap_two_from_allowed(self, gate):
+        """Gap of 2: only escalates one step (allowed -> needs_approval)."""
         result = gate.decide(
             GateResult.ALLOWED,
             RiskScore(level=4),
             utility=UtilityScore(level=2),
         )
-        assert result == GateResult.DENIED
+        assert result == GateResult.NEEDS_APPROVAL
 
-    def test_needs_approval_to_denied(self, gate):
+    def test_gap_two_from_needs_approval(self, gate):
+        """Gap of 2 from needs_approval: escalates one step to denied."""
         result = gate.decide(
             GateResult.NEEDS_APPROVAL,
             RiskScore(level=5),
-            utility=UtilityScore(level=2),
+            utility=UtilityScore(level=3),
         )
         assert result == GateResult.DENIED
 
-    def test_large_gap_clamps_at_denied(self, gate):
+    def test_large_gap_clamps_at_one_step(self, gate):
+        """Gap of 4: still only escalates one step from allowed."""
         result = gate.decide(
             GateResult.ALLOWED,
             RiskScore(level=5),
             utility=UtilityScore(level=1),
         )
-        assert result == GateResult.DENIED
+        assert result == GateResult.NEEDS_APPROVAL
 
 
 class TestParametricSweep:
